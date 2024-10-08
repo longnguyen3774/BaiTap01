@@ -4,6 +4,40 @@ import time
 import pandas as pd
 import re
 
+import sqlite3
+
+######################################################
+# 0. Tạo cơ sở dữ liệu
+conn = sqlite3.connect('musicians.db')
+c = conn.cursor()
+try:
+    c.execute('''
+        CREATE TABLE musician (
+            id integer primary key autoincrement,
+            name text,
+            years_active text
+        )
+    ''')
+except Exception as e:
+    print(e)
+
+
+def them(name, years_active):
+    conn = sqlite3.connect('musicians.db')
+    c = conn.cursor()
+    # Them vao co so du lieu
+    c.execute('''
+        INSERT INTO musician(name, years_active)
+        VALUES (:name, :years_active)
+    ''',
+      {
+          'name': name,
+          'years_active': years_active
+      })
+    conn.commit()
+    conn.close()
+
+
 # Webdriver
 driver = webdriver.Chrome()
 
@@ -30,7 +64,8 @@ try:
         try:
             link = tag.find_element(By.TAG_NAME, 'a').get_attribute('href')
             links.append(link)
-        except:
+        except Exception as e:
+            print(e)
             continue
 
     # Truy cập đến link đầu tiên trong phần "A"
@@ -47,7 +82,8 @@ try:
         try:
             link = tag.find_element(By.TAG_NAME, 'a').get_attribute('href')
             links.append(link)
-        except:
+        except Exception as e:
+            print(e)
             continue
 
     musicians_dict = {'name': [], 'years_active': []}
@@ -58,7 +94,8 @@ try:
         # Get name_of_the_band
         try:
             name = driver.find_element(By.TAG_NAME, 'h1').text
-        except:
+        except Exception as e:
+            print(e)
             name = ''
 
         years_active = ''
@@ -67,8 +104,10 @@ try:
             years_active_element = driver.find_element(By.XPATH, "//tr[contains(., 'Years active')]")
             years_active = years_active_element.text
             years_active = ', '.join(re.findall(r'\d{4}–(?:\d{4}|present)', years_active))
-        except:
-            pass
+        except Exception as e:
+            print(e)
+
+        them(name, years_active)
 
         # Add to dict of painters
         musicians_dict['name'].append(name)
@@ -77,10 +116,10 @@ try:
     df = pd.DataFrame(musicians_dict)
     print(df)
 
-    file = 'musicians.xlsx'
-    df.to_excel(file)
+    # file = 'musicians.xlsx'
+    # df.to_excel(file)
 
-except:
-    pass
+except Exception as e:
+    print(e)
 
 driver.quit()
