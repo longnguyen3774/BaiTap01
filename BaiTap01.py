@@ -91,7 +91,7 @@ try:
     for link in links:
         driver.get(link)
 
-        # Get name_of_the_band
+        # Get name of the musician
         try:
             name = driver.find_element(By.TAG_NAME, 'h1').text
         except Exception as e:
@@ -109,7 +109,7 @@ try:
 
         them(name, years_active)
 
-        # Add to dict of painters
+        # Add to dict of musicians
         musicians_dict['name'].append(name)
         musicians_dict['years_active'].append(years_active)
 
